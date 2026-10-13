@@ -16,6 +16,7 @@
 #include "CameraController.h"
 #include "Player.h"
 #include "LightController.h"
+#include "Coin.h"
 
 #include <thread>
 #include "MainGame.h"
@@ -28,12 +29,12 @@ namespace
 {
     constexpr const char* map_[] = {
         "###########",
-        "#.#.......#",
-        "#.###.##.##",
-        "#.....#...#",
-        "#.###P###.#",
-        "#..#......#",
-        "##.###.##.#",
+        "#.........#",
+        "#......C..#",
+        "#.........#",
+        "#..C......#",
+        "#......C..#",
+        "#....C....#",
         "#.........#",
         "###########"
     };
@@ -106,6 +107,29 @@ void MainGame::createMap()
                 Transform::SetParent(move(wall), map->transform);
             }
                 break;
+            case 'C':
+            {
+                rb = make_unique<Rigidbody>();
+                rb->gravityScale = 0;
+
+                // コインオブジェクトを作成
+                auto coin = make_unique<GameObject>(u8"Coin",
+                    make_unique<GltfModel>(),
+                    move(rb),
+                    make_unique<SphereCollider>(Vector3(0, -0.1f, 0), 0.4f),
+                    make_unique<Coin>()
+                );
+                auto model = coin->GetComponent<GltfModel>();
+                model->Load<VertexPN>(
+                    u8"resource/coin.glb",
+                    coinMat);
+
+                coin->transform->localPosition = Vector3(j * 2 - mapWidth + 1.0f, 1.0f, i * 2 - mapHeight + 1.0f);
+                coin->transform->localScale = Vector3(3, 3, 3);
+
+                // コインの親をマップにする
+                Transform::SetParent(move(coin), map->transform);
+            }
             default:
                 break;
             }
